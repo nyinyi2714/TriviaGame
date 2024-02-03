@@ -23,11 +23,11 @@ const axios = require('axios')
 
 // Cors
 const cors = require('cors')
-app.use(cors({origin: 'http://localhost:3000', credentials: true}))
+app.use(cors({ origin: 'http://localhost:3000', credentials: true }))
 
 // BodyParser
-const bodyParser = require('body-parser')	
-app.use(bodyParser.urlencoded({extended: false}))			
+const bodyParser = require('body-parser')
+app.use(bodyParser.urlencoded({ extended: false }))
 app.use(express.json())
 
 const bcrypt = require('bcrypt')
@@ -37,6 +37,8 @@ const cookieParser = require('cookie-parser')
 app.use(cookieParser())
 
 const accessCookieLifeSpan = 60 * 60 * 1000 // 1h
+
+const answers = []
 
 // Testing Connection
 app.get('/', (req, res) => {
@@ -123,7 +125,7 @@ app.post('/register', async (req, res) => {
   try {
     const { username, password } = req.body
 
-		// Check if the username already exists
+    // Check if the username already exists
     const existingUser = await User.findOne({ username })
     if (existingUser) {
       return res.status(400).json({ message: 'username already exists' })
@@ -132,7 +134,7 @@ app.post('/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10)
 
     const user = new User({
-			username: username,
+      username: username,
       password: hashedPassword,
     })
 
@@ -221,33 +223,84 @@ app.post('/questions', async (req, res) => {
   }
 
   try {
-    const amount = req.body.amount
-    // TODO: choose difficulty based on user's money amount
-    const difficulty = req.body.difficulty
-    const category = req.body.category
-
-    // Check if amount and difficulty parameters are present
-    if (!amount || !difficulty || !category) {
-      return res.status(400).json({ message: 'Amount, difficulty and category are required parameters.' })
+    // Choose difficulty based on user's money amount
+    let difficulty
+    switch(user.money) {
+      case user.money <= 10000: 
+        difficulty = 'easy'
+        break
+      case user.money <= 100000:
+        difficulty = 'medium'
+        break
+      case user.money > 100000:
+        difficulty = 'hard'
+        break
+      default:
+        difficulty = 'easy'
     }
 
+    // category will be implemented if have time. Catagory will be randomized by default
+    // const category = req.body.category
+
+    // Check if amount and difficulty parameters are present
+    // if (!category) {
+    //   return res.status(400).json({ message: 'Amount, difficulty and category are required parameters.' })
+    // }
+
     // Make a request to the Open Trivia Database API
-    const apiUrl = `https://opentdb.com/api.php?amount=${amount}&category=${category}&difficulty=${difficulty}`
+    const apiUrl = `https://opentdb.com/api.php?amount=1&difficulty=${difficulty}`
     const response = await axios.get(apiUrl)
 
     // Extract and send the questions as the response
     const questions = response.data.results
-    res.status(200).json({ questions })
+    const extractQuestions = extractQuestionAndChoices(questions)
+
+    res.status(200).json({ extractQuestions })
   } catch (error) {
     console.error('Error fetching trivia questions:', error)
     res.status(500).json({ message: 'Internal server error' })
   }
 })
 
+// Extract questions and answer choices from the external API
+function extractQuestionAndChoices(questionData) {
+  const { question, difficulty, correct_answer, incorrect_answers } = questionData;
+
+  // Combine correct and incorrect answers into choices array
+  const choices = [...incorrect_answers, correct_answer];
+
+  // Function to shuffle an array (Fisher-Yates algorithm)
+  function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  // Shuffle the choices to randomize the order
+  const shuffledChoices = shuffleArray(choices);
+
+  // Save correct answer in the answers global variable
+  answers.push({question: question, difficulty, correct_answer})
+
+  return {
+    question,
+    choices: shuffledChoices,
+    correctAnswer: correct_answer,
+  };
+}
+
+// Remove the question from the answers global variable after user answered the question
+const delAnswer = (answers, questionRef) => {
+  return answers.filter(answer => answer.question !== questionRef)
+}
+
+// Endpoint for saving progress
 app.post('/save', async (req, res) => {
   try {
     const userId = req.user.id;
-    const { newMoney } = req.body;
+    const { question, userChoice } = req.body;
 
     // Check if the user exists
     const user = await User.findById(userId);
@@ -255,11 +308,41 @@ app.post('/save', async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Update the user's money attribute
-    user.money = newMoney;
-    await user.save();
+    // Check if answers varible is not empty
+    if(answers.length <= 0) return res.status(500).json({ message: 'No saved correct answers' })
 
-    res.status(200).json({ message: 'Money updated successfully' });
+    // Check if the question and userChoice sent from the client matches the correct answer
+    // store inside the answers global variable
+    if(userChoice.toLowerCase() !== answers[question].answer.toLowerCase()) {
+      res.status(200).json({ isUserCorrect: false, correctAnswer: answers[question].answer })
+    } else {
+      // if correct, update user's money
+      let userReward;
+      switch(answers[question].difficulty) {
+        case "easy":
+          userReward = 5000
+          break
+        case "medium":
+          userReward = 50000
+          break
+        case "hard":
+          userReward = 500000
+          break
+        default:
+          userReward = 0
+      }
+
+      user.money = user.money + userReward;
+      await user.save();
+
+      // delete the question and answer object from the answers global variable
+      answers = delAnswer(answers, question)
+
+      // Send back if the user is correct or not
+      // Send back correct answer
+      res.status(200).json({ isUserCorrect: true, correctAnswer: answers[question].answer })
+    }
+
   } catch (error) {
     console.error('Error updating user money:', error);
     res.status(500).json({ message: 'Internal server error' });
