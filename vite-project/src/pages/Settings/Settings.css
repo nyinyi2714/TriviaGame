@@ -1,0 +1,42 @@
+.container {
+  min-height: 100vh;
+  min-width: 100vw;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  gap: 0px 0px;
+  grid-auto-flow: row;
+  grid-template-areas:
+    "settings-language"
+    "settings-color-blind"
+    "settings-audio-only";
+}
+
+.settingsBtn {
+  font-size: 35px;
+  font-style: bold;
+  min-height: 100%;
+  min-width: 100%;
+}
+
+.settings-language {
+  grid-area: settings-language;
+  margin-bottom: 1.5px;
+}
+
+.settings-color-blind {
+  grid-area: settings-color-blind;
+  margin-bottom: 1.5px;
+}
+
+.settings-audio-only {
+  grid-area: settings-audio-only;
+}
+
+.positive-btn {
+  background-color: #0c7bdc;
+}
+
+.negative-btn {
+  background-color: #e1be6a;
+}
