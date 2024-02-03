@@ -23,7 +23,8 @@ const axios = require('axios')
 
 // Cors
 const cors = require('cors')
-app.use(cors({ origin: 'http://localhost:3000', credentials: true }))
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:5173']
+app.use(cors({ origin: allowedOrigins, credentials: true }))
 
 // BodyParser
 const bodyParser = require('body-parser')
@@ -45,79 +46,34 @@ app.get('/', (req, res) => {
   res.json({ message: 'Successfully Connected' })
 })
 
-// Middleware to authenticate requests
 const authenticateJWT = (req, res, next) => {
-  const accessToken = req.cookies.accessToken
-  const refreshToken = req.cookies.refreshToken
+  const accessToken = req.cookies.accessToken;
 
   if (!accessToken) {
-    return res.status(401).json({ error: 'Unauthorized' })
+    return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, async (err, key) => {
-    // If Access token is invalid or expired
+  jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
     if (err) {
-      // if there's no refresh token present in the httpOnly cookies
-      if (!refreshToken) {
-        return res.sendStatus(403)
-      }
-
-      // Verify the refresh token
-      jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, async (refreshErr, refreshKey) => {
-        if (refreshErr) {
-          return res.sendStatus(403) // Invalid refresh token
-        }
-
-        try {
-          // Find user based on the refresh token
-          const user = await User.findById(refreshKey.userId)
-          if (!user) {
-            return res.sendStatus(404) // User not found
-          }
-
-          // Generate a new access token
-          const newAccessToken = jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1hr' })
-
-          // Set the new access token in an HTTP-only cookie
-          res.cookie('accessToken', newAccessToken, { httpOnly: true, maxAge: accessCookieLifeSpan }) // 1hr
-
-          // Set the user in the request for further processing
-          req.user = user
-
-          // Continue to the next middleware or route
-          next()
-        } catch (error) {
-          console.error('Error finding user:', error)
-          res.status(500).json({ message: 'Internal server error' })
-        }
-      })
-
-      // if access token is valid
-    } else {
-      try {
-        const user = await User.findById(key.userId)
-        if (!user) {
-          return res.sendStatus(404) // User not found
-        }
-
-        req.user = user
-        next()
-      } catch (error) {
-        console.error('Error finding user:', error)
-        res.status(500).json({ message: 'Internal server error' })
+      // Token verification failed
+      if (err.name === 'TokenExpiredError') {
+        return res.status(401).json({ error: 'Token expired' });
+      } else {
+        return res.status(401).json({ error: 'Unauthorized' });
       }
     }
-  })
-}
+
+    // Token verified successfully
+    // Attach the decoded user to the request for later use in routes
+    req.user = decoded;
+
+    next();
+  });
+};
 
 // Function to generate access token
 const generateAccessToken = (userId) => {
   return jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
-}
-
-// Function to generate refresh token
-const generateRefreshToken = (userId) => {
-  return jwt.sign({ userId }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
 }
 
 // User Registration endpoint
@@ -136,17 +92,17 @@ app.post('/register', async (req, res) => {
     const user = new User({
       username: username,
       password: hashedPassword,
+      money: 0, // start the game with 0
+      score: 0
     })
 
     const savedUser = await user.save()
 
     // After successful registration, generate tokens
     const accessToken = generateAccessToken(savedUser._id)
-    const refreshToken = generateRefreshToken(savedUser._id)
 
     res.cookie('accessToken', accessToken, { httpOnly: true, maxAge: accessCookieLifeSpan })
-    res.cookie('refreshToken', refreshToken, { httpOnly: true })
-    res.status(200).json({ success: true, accessToken })
+    res.status(200).json({ success: true })
 
   } catch (error) {
     console.error(error)
@@ -171,11 +127,9 @@ app.post('/login', async (req, res) => {
 
     // After successful authentication, generate tokens
     const accessToken = generateAccessToken(user._id)
-    const refreshToken = generateRefreshToken(user._id)
 
     res.cookie('accessToken', accessToken, { httpOnly: true, maxAge: accessCookieLifeSpan })
-    res.cookie('refreshToken', refreshToken, { httpOnly: true })
-    res.status(200).json({ success: true, accessToken })
+    res.status(200).json({ success: true })
 
   } catch (error) {
     console.error(error)
@@ -225,8 +179,8 @@ app.post('/questions', async (req, res) => {
   try {
     // Choose difficulty based on user's money amount
     let difficulty
-    switch(user.money) {
-      case user.money <= 10000: 
+    switch (user.money) {
+      case user.money <= 10000:
         difficulty = 'easy'
         break
       case user.money <= 100000:
@@ -282,7 +236,7 @@ function extractQuestionAndChoices(questionData) {
   const shuffledChoices = shuffleArray(choices);
 
   // Save correct answer in the answers global variable
-  answers.push({question: question, difficulty, correct_answer})
+  answers.push({ question: question, difficulty, correct_answer })
 
   return {
     question,
@@ -309,16 +263,16 @@ app.post('/save', async (req, res) => {
     }
 
     // Check if answers varible is not empty
-    if(answers.length <= 0) return res.status(500).json({ message: 'No saved correct answers' })
+    if (answers.length <= 0) return res.status(500).json({ message: 'No saved correct answers' })
 
     // Check if the question and userChoice sent from the client matches the correct answer
     // store inside the answers global variable
-    if(userChoice.toLowerCase() !== answers[question].answer.toLowerCase()) {
+    if (userChoice.toLowerCase() !== answers[question].answer.toLowerCase()) {
       res.status(200).json({ isUserCorrect: false, correctAnswer: answers[question].answer })
     } else {
       // if correct, update user's money
       let userReward;
-      switch(answers[question].difficulty) {
+      switch (answers[question].difficulty) {
         case "easy":
           userReward = 5000
           break

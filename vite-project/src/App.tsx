@@ -1,19 +1,15 @@
 import { Routes, Route } from 'react-router-dom'
-import { StateProvider } from './StateContext'
-import { HomePage } from './pages'
+import { HomePage, LoginPage } from './pages'
 import './App.css'
 
 function App() {
 
   return (
     <div className='app'>
-      <StateProvider>
-          <Routes>
-            <Route path='/' element={<HomePage />} />
-            <Route path='/signin' element={null} />
-            <Route path='/signup' element={null} />
-          </Routes>
-      </StateProvider>
+      <Routes>
+        <Route path='/' element={<HomePage />} />
+        <Route path='/signin' element={<LoginPage />} />
+      </Routes>
     </div>
   )
 }

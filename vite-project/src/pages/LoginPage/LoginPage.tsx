@@ -1,86 +1,72 @@
-// src/Login.js
 import React, { useState } from 'react';
-import './Login.css';
+import { useAuth } from '../../hooks'
+import './LoginPage.css';
 
-function Login() {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
+const LoginPage = () => {
+  const { login, register } = useAuth()
 
-  const [errors, setErrors] = useState({
-    email: '',
-    password: '',
-  });
+  const [isLogin, setIsLogin] = useState(true)
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-    // Clear error message when user starts typing
-    setErrors({
-      ...errors,
-      [name]: '',
-    });
+  const handleLogin = () => {
+    login(username, password)
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Basic validation
-    let formIsValid = true;
-    const newErrors = { ...errors };
+  const handleRegistration = () => {
+    register(username, password)
+  }
 
-    if (!formData.email || !formData.email.includes('@')) {
-      newErrors.email = 'Invalid email address';
-      formIsValid = false;
-    }
-
-    if (!formData.password || formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-      formIsValid = false;
-    }
-
-    if (formIsValid) {
-      // Handle form submission here (e.g., send data to the server)
-      console.log(formData);
-    } else {
-      // Set the new error messages
-      setErrors(newErrors);
-    }
-  };
+  const toggleLogin = () => {
+    setIsLogin(prev => !prev);
+  }
 
   return (
-    <div className="login-container">
+    <div className="login">
       <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Email</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-          <div className="error-message">{errors.email}</div>
-        </div>
-        <div className="form-group">
-          <label>Password</label>
+      <div className="login-input-group">
+        <label htmlFor="username">Username:</label>
+        <input
+          type="text"
+          id="username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder='username'
+        />
+      </div>
+      <div className="login-input-group">
+        <label htmlFor="password">Password:</label>
+        <input
+          type="password"
+          id="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder='password'
+        />
+      </div>
+      {
+        !isLogin &&
+        <div className="login-input-group">
+          <label htmlFor="confirm-password">Confirm Password:</label>
           <input
             type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
+            id="confirm-password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder='confirm password'
           />
-          <div className="error-message">{errors.password}</div>
         </div>
-        <button type="submit">Login</button>
-      </form>
+      }
+      <button onClick={isLogin? handleLogin : handleRegistration}>{isLogin ? "Login" : "Register"}</button>
+      <button onClick={toggleLogin}>
+        {isLogin ?
+          "Don't have an account? Click Here to Register" :
+          "Already have an account? Login Here"
+        }
+      </button>
     </div>
   );
-}
+};
 
-export default Login;
+export default LoginPage;
