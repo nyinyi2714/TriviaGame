@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const LoginScreen = () => {
+function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -128,4 +128,4 @@ const styles = {
   },
 };
 
-export default LoginScreen;
+export default LoginPage;
