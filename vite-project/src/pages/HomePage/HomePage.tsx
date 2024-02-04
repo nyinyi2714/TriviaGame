@@ -1,18 +1,15 @@
-import { useState, useEffect } from 'react'
-import { useAuth } from '../../hooks'
-import './HomePage.css'
-
+import { useState, useEffect } from "react";
+import { useAuth } from "../../hooks";
+import "./HomePage.css";
 
 function HomePage() {
-
-  const { logout } = useAuth()
+  const { logout } = useAuth();
 
   return (
-    <div className='homepage'>
+    <div className="homepage">
       <h1>Trivia Game</h1>
-      <h2>WHO WANTS TO BE A MILLIONAIRE</h2>
 
-      <div className='homepage-button'>
+      <div className="homepage-button">
         <button>NEW</button>
         <button>RESUME</button>
         <button>LEADERBOARD</button>
@@ -20,8 +17,7 @@ function HomePage() {
         <button onClick={logout}>LOGOUT</button>
       </div>
     </div>
-    
-  )
+  );
 }
 
-export default HomePage
+export default HomePage;
