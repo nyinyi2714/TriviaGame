@@ -1,10 +1,10 @@
-import { useNavigate } from "react-router-dom";
-import { useAuth, useTextToSpeech } from "../../hooks";
-import "./HomePage.css";
-import { useEffect } from "react";
+import { useNavigate } from "react-router-dom"
+import { useAuth, useTextToSpeech } from "../../hooks"
+import "./HomePage.css"
+import { useEffect } from "react"
 
 function HomePage() {
-  const { logout } = useAuth();
+  const { logout } = useAuth()
   const navigate = useNavigate()
   const { speak, isSpeaking, stop } = useTextToSpeech()
 
@@ -13,7 +13,7 @@ function HomePage() {
     if (isSpeaking) return
 
     // Check if the element has the attribute data-selected set to true
-    const isSelected = e.target.getAttribute('data-selected') === 'true';
+    const isSelected = e.target.getAttribute('data-selected') === 'true'
     if (isSelected) {
       // Handle the case when data-selected is true
       if(e.target.id === 'logout') logout()
@@ -26,11 +26,11 @@ function HomePage() {
       else speak(`go to ${e.target.id}`)
 
       // Reset all the data-selected in all buttons on the page
-      const allButtons = document.querySelectorAll('button');
-      allButtons.forEach(button => button.setAttribute('data-selected', 'false'));
+      const allButtons = document.querySelectorAll('button')
+      allButtons.forEach(button => button.setAttribute('data-selected', 'false'))
 
       // Set data-selected in e.target to true
-      e.target.setAttribute('data-selected', 'true');
+      e.target.setAttribute('data-selected', 'true')
     }
   }
 
@@ -51,7 +51,7 @@ function HomePage() {
         <button id="logout" onClick={handleDoubleClick}>LOGOUT</button>
       </div>
     </div>
-  );
+  )
 }
 
-export default HomePage;
+export default HomePage

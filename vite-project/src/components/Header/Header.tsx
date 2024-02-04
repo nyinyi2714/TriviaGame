@@ -1,10 +1,10 @@
 import { useEffect } from "react"
 import { useTextToSpeech } from "../../hooks"
 import { useNavigate } from "react-router-dom"
-import "./Header.css";
+import "./Header.css"
 
 function Header(props: { header: string }) {
-  const { header } = props;
+  const { header } = props
   const navigate = useNavigate()
   const { speak, isSpeaking, stop } = useTextToSpeech()
 
@@ -17,7 +17,7 @@ function Header(props: { header: string }) {
     if (isSpeaking) return
 
     // Check if the element has the attribute data-selected set to true
-    const isSelected = e.target.getAttribute('data-selected') === 'true';
+    const isSelected = e.target.getAttribute('data-selected') === 'true'
     if (isSelected) {
       goToMenu()
 
@@ -27,11 +27,11 @@ function Header(props: { header: string }) {
       speak('Go back to Menu')
 
       // Reset all the data-selected in all buttons on the page
-      const allButtons = document.querySelectorAll('img');
-      allButtons.forEach(button => button.setAttribute('data-selected', 'false'));
+      const allButtons = document.querySelectorAll('img')
+      allButtons.forEach(button => button.setAttribute('data-selected', 'false'))
 
       // Set data-selected in e.target to true
-      e.target.setAttribute('data-selected', 'true');
+      e.target.setAttribute('data-selected', 'true')
     }
   }
 
@@ -51,7 +51,7 @@ function Header(props: { header: string }) {
         </button>
       </div>
     </div>
-  );
+  )
 }
 
-export default Header;
+export default Header

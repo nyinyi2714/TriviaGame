@@ -2,12 +2,12 @@ function useDelayCallback() {
   const delayedCallback = (callback: any, sec = 2000): void => {
     setTimeout(() => {
       if (callback) {
-        callback();
+        callback()
       }
-    }, sec);
-  };
+    }, sec)
+  }
 
   return { delayedCallback }
 }
 
-export default useDelayCallback;
+export default useDelayCallback

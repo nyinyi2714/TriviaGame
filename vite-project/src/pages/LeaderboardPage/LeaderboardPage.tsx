@@ -1,29 +1,29 @@
-import { useState, useEffect } from 'react';
-import { useFetchLeaderboard } from '../../hooks';
-import { Header } from '../../components';
-import './LeaderboardPage.css';
+import { useState, useEffect } from 'react'
+import { useFetchLeaderboard } from '../../hooks'
+import { Header } from '../../components'
+import './LeaderboardPage.css'
 
 type UserScore = {
-  username: string;
-  score: number;
+  username: string
+  score: number
 }
 
 function LeaderboardPage() {
-  const [leaderboardData, setLeaderboardData] = useState<UserScore[]>([]);
-  const { fetchLeaderboard } = useFetchLeaderboard();
+  const [leaderboardData, setLeaderboardData] = useState<UserScore[]>([])
+  const { fetchLeaderboard } = useFetchLeaderboard()
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const responseData = await fetchLeaderboard();
-        setLeaderboardData(responseData);
+        const responseData = await fetchLeaderboard()
+        setLeaderboardData(responseData)
       } catch (error) {
-        console.error('Error fetching leaderboard data:', error);
+        console.error('Error fetching leaderboard data:', error)
       }
-    };
+    }
 
-    fetchData();
-  }, []);
+    fetchData()
+  }, [])
 
   return (
     <>
@@ -48,7 +48,7 @@ function LeaderboardPage() {
         </table>
       </div>
     </>
-  );
+  )
 }
 
-export default LeaderboardPage;
+export default LeaderboardPage

@@ -60,21 +60,21 @@ const authenticateJWT = (req, res, next) => {
 
     try {
       // Fetch the user from the database using the userId from the decoded token
-      const user = await User.findById(decoded.userId);
+      const user = await User.findById(decoded.userId)
 
       if (!user) {
-        return res.status(401).json({ error: 'User not found' });
+        return res.status(401).json({ error: 'User not found' })
       }
 
       // Attach the user object to the request for later use in routes
-      req.user = user;
+      req.user = user
 
       // Continue with the next middleware
 
       next()
     } catch (error) {
-      console.error('Error fetching user:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      console.error('Error fetching user:', error)
+      res.status(500).json({ error: 'Internal server error' })
     }
   })
 }
@@ -164,7 +164,7 @@ app.get('/checkAuth', authenticateJWT, async (req, res) => {
 app.get('/leaderboard', async (req, res) => {
   try {
     // Fetch leaderboard data from the database (top 10 players)
-    const leaderboardData = await User.find().sort({ score: -1 }).limit(10);
+    const leaderboardData = await User.find().sort({ score: -1 }).limit(10)
     res.status(200).json(leaderboardData)
   } catch (error) {
     console.error('Error fetching leaderboard data:', error)
@@ -184,34 +184,34 @@ app.post('/questions', authenticateJWT, async (req, res) => {
 
   try {
     // Choose difficulty based on user's money amount
-    let difficulty;
+    let difficulty
     if (user.money <= 10000) {
-      difficulty = 'easy';
+      difficulty = 'easy'
     } else if (user.money <= 100000) {
-      difficulty = 'medium';
+      difficulty = 'medium'
     } else {
-      difficulty = 'hard';
+      difficulty = 'hard'
     }
     // Fetch a random question from the Question model for the selected difficulty
     const question = await Question.aggregate([
       { $match: { difficulty: difficulty } },
       { $sample: { size: 1 } },
-    ]);
+    ])
 
 
     // Check if there are questions
     if (!question || question.length === 0) {
-      return res.status(404).json({ message: 'No questions found for the selected difficulty.' });
+      return res.status(404).json({ message: 'No questions found for the selected difficulty.' })
     }
 
     // Check if 'choices' array is present in the fetched question
-    const { _id, question: fetchedQuestion, choices } = question[0];
+    const { _id, question: fetchedQuestion, choices } = question[0]
     if (!choices || !Array.isArray(choices) || choices.length < 4) {
-      return res.status(500).json({ message: 'Invalid question format.' });
+      return res.status(500).json({ message: 'Invalid question format.' })
     }
 
     // Send the question and choices
-    res.status(200).json({ userMoney: user.money, question_id: _id, question: fetchedQuestion, choices: choices });
+    res.status(200).json({ userMoney: user.money, question_id: _id, question: fetchedQuestion, choices: choices })
   } catch (error) {
     console.error('Error fetching trivia questions:', error)
     res.status(500).json({ message: 'Internal server error' })
@@ -221,47 +221,47 @@ app.post('/questions', authenticateJWT, async (req, res) => {
 // Endpoint for saving progress
 app.post('/save', authenticateJWT, async (req, res) => {
   try {
-    const userId = req.user._id;
-    const { question_id, userChoice } = req.body;
+    const userId = req.user._id
+    const { question_id, userChoice } = req.body
 
     // Check if the user exists
-    const user = await User.findById(userId);
+    const user = await User.findById(userId)
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: 'User not found' })
     }
 
     // Fetch the question from the database based on question_id
-    const question = await Question.findById(question_id);
+    const question = await Question.findById(question_id)
     if (!question) {
-      return res.status(404).json({ message: 'Question not found' });
+      return res.status(404).json({ message: 'Question not found' })
     }
 
     // Check if userChoice matches the correctAnswer
-    const isUserCorrect = userChoice === question.correctAnswer;
+    const isUserCorrect = userChoice === question.correctAnswer
 
      
-      let moneyBet;
+      let moneyBet
       switch (question.difficulty) {
         case 'easy':
-          moneyBet = 5000;
-          break;
+          moneyBet = 5000
+          break
         case 'medium':
-          moneyBet = 50000;
-          break;
+          moneyBet = 50000
+          break
         case 'hard':
-          moneyBet = 500000;
-          break;
+          moneyBet = 500000
+          break
         default:
-          moneyBet = 0;
+          moneyBet = 0
       }
 
       let hasUserWon = null
 
       // If correct, update user's money
-      if(isUserCorrect) user.money = user.money + moneyBet;
+      if(isUserCorrect) user.money = user.money + moneyBet
 
       // if incorrect, substract. Min is $0
-      else user.money = Math.max(user.money - moneyBet, 0);
+      else user.money = Math.max(user.money - moneyBet, 0)
       
       // when user moneny hits 1 mil, they win. their progess reset. their score increase by 1
       if(user.money >= 1000000) {
@@ -271,16 +271,16 @@ app.post('/save', authenticateJWT, async (req, res) => {
       } else if(user.money <= 0) {
         hasUserWon = false
       }
-      await user.save();
+      await user.save()
 
       // Send back if the user is correct and the correct answer
-      res.status(200).json({ isUserCorrect: isUserCorrect, correctAnswer: question.correctAnswer, hasUserWon });
+      res.status(200).json({ isUserCorrect: isUserCorrect, correctAnswer: question.correctAnswer, hasUserWon })
     
   } catch (error) {
-    console.error('Error updating user money:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error('Error updating user money:', error)
+    res.status(500).json({ message: 'Internal server error' })
   }
-});
+})
 
 app.listen(PORT)
 

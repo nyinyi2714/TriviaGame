@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react'
 import { useDelayCallback, useFetchQuestions, useSaveProgress, useTextToSpeech, useTimer } from '../../hooks'
 import { Header } from "../../components"
 import './GamePage.css'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'
 
 type Question = {
-  userMoney: number;
-  question_id: string;
-  question: string;
-  choices: string[];
+  userMoney: number
+  question_id: string
+  question: string
+  choices: string[]
 }
 
 function GamePage() {
@@ -42,7 +42,7 @@ function GamePage() {
     cancelTimer()
 
     try {
-      const responseData: Question = await fetchQuestions();
+      const responseData: Question = await fetchQuestions()
 
       if (responseData) {
         setQuestionData(responseData)
@@ -54,7 +54,7 @@ function GamePage() {
         console.error("fetched question data is empty")
       }
     } catch (error) {
-      console.error('Error fetching question data:', error);
+      console.error('Error fetching question data:', error)
     }
   }
 
@@ -85,13 +85,13 @@ function GamePage() {
 
   // check user's answer if it's correct by sending to backend
   const checkAnswer = async (questionData: Question, userChoice: string) => {
-    const response = await saveProgress(questionData.question_id, userChoice);
+    const response = await saveProgress(questionData.question_id, userChoice)
 
     const { isUserCorrect, correctAnswer, hasUserWon } = response
     // hasUserWon === null means game is not over yet
     setIsGameOver(hasUserWon === null ? false : true)
 
-    let textToSpeech = '';
+    let textToSpeech = ''
 
     // if user is correct
     if (isUserCorrect) {
@@ -132,7 +132,7 @@ function GamePage() {
     if (questionData) {
       checkAnswer(questionData, buttonId)
     }
-  };
+  }
 
   const speakQuestion = () => questionData && speak(questionData.question)
 
@@ -140,7 +140,7 @@ function GamePage() {
     let textToSpeech = questionData.question
     questionData.choices.forEach((choice, index) => {
       textToSpeech += answerGroup[index] + choice + ". "
-    });
+    })
     textToSpeech += 'you have ' + questionData.userMoney + 'dollar'
     speak(textToSpeech)
   }
@@ -150,7 +150,7 @@ function GamePage() {
     if (isSpeaking) return
 
     // Check if the element has the attribute data-selected set to true
-    const isSelected = e.target.getAttribute('data-selected') === 'true';
+    const isSelected = e.target.getAttribute('data-selected') === 'true'
     if (isSelected) {
       // Handle the case when data-selected is true
       handleChooseAns(e.target.id)
@@ -161,11 +161,11 @@ function GamePage() {
       speak(e.target.value)
 
       // Reset all the data-selected in all buttons on the page
-      const allButtons = document.querySelectorAll('.gamepage-button');
-      allButtons.forEach(button => button.setAttribute('data-selected', 'false'));
+      const allButtons = document.querySelectorAll('.gamepage-button')
+      allButtons.forEach(button => button.setAttribute('data-selected', 'false'))
 
       // Set data-selected in e.target to true
-      e.target.setAttribute('data-selected', 'true');
+      e.target.setAttribute('data-selected', 'true')
     }
   }
 

@@ -1,45 +1,45 @@
-import { useEffect, useState } from "react";
-import { useAuth } from "../../hooks";
-import { Header } from "../../components";
-import "./LoginPage.css";
+import { useEffect, useState } from "react"
+import { useAuth } from "../../hooks"
+import { Header } from "../../components"
+import "./LoginPage.css"
 
 const LoginPage = () => {
-  const { login, register } = useAuth();
+  const { login, register } = useAuth()
 
-  const [isLogin, setIsLogin] = useState(true);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [passwordsMatch, setPasswordsMatch] = useState(true);
+  const [isLogin, setIsLogin] = useState(true)
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [passwordsMatch, setPasswordsMatch] = useState(true)
 
   const handleLogin = () => {
-    login(username, password);
-  };
+    login(username, password)
+  }
 
   const handleRegistration = () => {
     if (passwordsMatch) {
-      register(username, password);
+      register(username, password)
     } else {
       // Handle password mismatch error
-      console.error("Passwords do not match");
+      console.error("Passwords do not match")
     }
-  };
+  }
 
   const toggleLogin = () => {
-    setIsLogin((prev) => !prev);
-  };
+    setIsLogin((prev) => !prev)
+  }
 
   const checkPasswordMatch = () => {
-    console.log({ password, confirmPassword });
-    setPasswordsMatch(password === confirmPassword);
-  };
+    console.log({ password, confirmPassword })
+    setPasswordsMatch(password === confirmPassword)
+  }
 
   useEffect(() => {
-    if (password.length <= 0) return;
+    if (password.length <= 0) return
 
     // if password field is entered
-    checkPasswordMatch();
-  }, [confirmPassword]);
+    checkPasswordMatch()
+  }, [confirmPassword])
 
   return (
     <>
@@ -63,7 +63,7 @@ const LoginPage = () => {
             id="password"
             value={password}
             onChange={(e) => {
-              setPassword(e.target.value);
+              setPassword(e.target.value)
             }}
             placeholder="Password"
           />
@@ -76,7 +76,7 @@ const LoginPage = () => {
               id="confirm-password"
               value={confirmPassword}
               onChange={(e) => {
-                setConfirmPassword(e.target.value);
+                setConfirmPassword(e.target.value)
               }}
               placeholder="Confirm your password"
             />
@@ -93,7 +93,7 @@ const LoginPage = () => {
         </button>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default LoginPage;
+export default LoginPage

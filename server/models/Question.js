@@ -1,4 +1,4 @@
-const { Schema, model } = require('mongoose');
+const { Schema, model } = require('mongoose')
 
 const questionSchema = new Schema({
   difficulty: {
@@ -17,6 +17,6 @@ const questionSchema = new Schema({
     type: [String],
     required: true,
   },
-});
+})
 
-module.exports = model('Question', questionSchema);
+module.exports = model('Question', questionSchema)
