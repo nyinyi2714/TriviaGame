@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react"
 import { useAuth } from "../../hooks"
 import { Header } from "../../components"
+import { useNavigate } from "react-router-dom"
 import "./LoginPage.css"
 
 const LoginPage = () => {
   const { login, register } = useAuth()
+  const navigate = useNavigate()
 
   const [isLogin, setIsLogin] = useState(true)
   const [username, setUsername] = useState("")
@@ -12,13 +14,16 @@ const LoginPage = () => {
   const [confirmPassword, setConfirmPassword] = useState("")
   const [passwordsMatch, setPasswordsMatch] = useState(true)
 
-  const handleLogin = () => {
-    login(username, password)
+  const handleLogin = async () => {
+    const res = await login(username, password)
+    console.log(res)
+    if(res) navigate('/')
   }
 
-  const handleRegistration = () => {
+  const handleRegistration = async () => {
     if (passwordsMatch) {
-      register(username, password)
+      const res = await register(username, password)
+      if(res) navigate('/')
     } else {
       // Handle password mismatch error
       console.error("Passwords do not match")
