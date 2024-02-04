@@ -1,7 +1,14 @@
 import "./Settings.css";
+import { Header } from "../../components";
 
 function Settings() {
+
+
   return (
+
+
+    <><Header header="Settings" />
+
     <div className="container">
       <div className="settings-language">
         <button className="settingsBtn negative-btn">ENGLISH</button>
@@ -13,6 +20,7 @@ function Settings() {
         <button className="settingsBtn negative-btn">AUDIO ONLY</button>
       </div>
     </div>
+  </>
   );
 }
 

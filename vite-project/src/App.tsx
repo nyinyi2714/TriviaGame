@@ -1,40 +1,26 @@
-<<<<<<< HEAD
-import { Routes, Route } from 'react-router-dom'
-import { HomePage, LoginPage, GamePage,  } from './pages'
-import './App.css'
-import Leaderboard from './pages/Leaderboard/leaderboard'
-=======
-import { Routes, Route } from "react-router-dom";
-import { HomePage, LoginPage } from "./pages";
+import { Routes, Route, useLocation } from 'react-router-dom';
+import { HomePage, LoginPage, GamePage } from './pages';
+import Leaderboard from './pages/Leaderboard/leaderboard';
 import { Header } from "./components";
 import "./App.css";
->>>>>>> 4e79fdc742006472d6a51e591705cb1724a5fcf9
+import Settings from './pages/Settings/Settings';
+
 
 function App() {
+
   return (
-<<<<<<< HEAD
     <div className='app'>
+      {/* Conditionally render Header if not on the login page */}
+      
       <Routes>
         <Route path='/' element={<HomePage />} />
         <Route path='/login' element={<LoginPage />} />
-        <Route path='/game' element={<GamePage />} />
+        <Route path='/gameplay' element={<GamePage />} />
         <Route path='/Leaderboard' element={<Leaderboard />} />
-          
+        <Route path='/Settings' element={<Settings />} />
+
+        
       </Routes>
-=======
-    <div className="container-app">
-      <div className="game-head">
-        <Header header={"FixTitle"} />
-      </div>
-      <div className="game-shell">
-        <div className="app">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/signin" element={<LoginPage />} />
-          </Routes>
-        </div>
-      </div>
->>>>>>> 4e79fdc742006472d6a51e591705cb1724a5fcf9
     </div>
   );
 }

@@ -1,6 +1,6 @@
 .container-header {
   width: 100%;
-  height: 100%;
+  height: 20vh;
   display: grid;
   grid-template-columns: 3fr 7fr;
   grid-template-rows: 1fr;
@@ -14,15 +14,18 @@
   font-size: 40px;
   text-align: center;
   grid-area: title;
-  background-color: green;
+  background-color: #6db6ff;
+  width: 100%;
 }
 
 .back-btn-box {
   grid-area: back-btn;
-  background-color: blue;
+  
 }
 
 .back-btn {
   min-height: 100%;
   min-width: 100%;
+  background-color: #db6000;
 }
+

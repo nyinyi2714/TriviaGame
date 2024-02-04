@@ -1,5 +1,6 @@
 import React from 'react';
 import './leaderboard.css'; // Assuming the CSS file is in the same directory
+import { Header } from '../../components';
 
 
 // Dummy data for now
@@ -72,6 +73,9 @@ const Leaderboard: React.FC = () => {
     console.log(leaderboardTable)
 
     return (
+
+        <><Header header="LeaderBoard" />
+
         <div className='leaderboard'>
             <table id="leaderboardTable">
                 <thead>
@@ -87,6 +91,7 @@ const Leaderboard: React.FC = () => {
                 </tbody>
             </table>
         </div>
+        </>
     );
 };
 

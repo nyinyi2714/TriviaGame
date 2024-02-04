@@ -1,10 +1,23 @@
+
+.title {
+  background-color: green;
+  height:20vh;
+  display: flex;
+  font-size: 40px;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+}
+
+
 .homepage-button {
-  height: 100vh;
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
   gap: 0px 0px;
   grid-auto-flow: row;
+  height: 80vh;
+  overflow-y: hidden;
   grid-template-areas:
     "new-box"
     "resume-box"

@@ -7,7 +7,10 @@
     "question question"
     "opt1  opt2"
     "opt3  opt4";
-  min-height: 100vh;
+    height: 80vh;
+    overflow-y: hidden;
+  
+  
 }
 
 .gamepage-button {

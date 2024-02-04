@@ -1,11 +1,9 @@
 .login {
-  max-width: 300px;
-  margin: 0 auto;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 40px;
   background-color: #fff;
+  height: 100vh;
+  overflow-y: hidden;
+  
 }
 
 .login-input-group {
@@ -20,25 +18,21 @@
 
 .login input {
   width: 100%;
-  padding: 10px;
+  padding: 50px;
   border: 1px solid #ccc; /* Corrected from '5x' to '1px' */
   border-radius: 3px;
   box-sizing: border-box;
   margin-bottom: 10px;
+  margin-top: 10px;
+  
 }
 
 .login button {
   background-color: #4caf50;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 3px;
   cursor: pointer;
-  margin-top: 10px;
   color: #fff;
-  font-size: 16px;
-  display: block;
-  margin: 0 auto;
   margin-top: 10px;
   width: 100%;
+  padding: 50px;
 
 }
