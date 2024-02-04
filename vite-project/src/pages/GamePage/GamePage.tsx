@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useDelayCallback, useFetchQuestions, useSaveProgress, useTextToSpeech, useTimer } from '../../hooks'
+import { Header } from "../../components"
 import './GamePage.css'
 import { useNavigate } from 'react-router-dom';
 
@@ -16,7 +17,7 @@ function GamePage() {
   const { startTimer, cancelTimer, timeLeft } = useTimer()
   const { delayedCallback } = useDelayCallback()
   const navigate = useNavigate()
-  
+
 
   const { fetchQuestions } = useFetchQuestions()
   const sampleQuestion = {
@@ -34,7 +35,7 @@ function GamePage() {
 
   const fetchAndSaveQuestionData = async () => {
     // if game is not started, return
-    if(!startGame) return
+    if (!startGame) return
 
     // reset game parameters
     setPopUpMessage('')
@@ -125,8 +126,8 @@ function GamePage() {
 
   // when user choose an answer
   const handleChooseAns = async (buttonId: string) => {
-     // stop the timer
-     cancelTimer()
+    // stop the timer
+    cancelTimer()
 
     if (questionData) {
       checkAnswer(questionData, buttonId)
@@ -146,26 +147,26 @@ function GamePage() {
 
   const handleDoubleClick = (e: any) => {
     // if TTS is running, return
-    if(isSpeaking) return
+    if (isSpeaking) return
 
     // Check if the element has the attribute data-selected set to true
-  const isSelected = e.target.getAttribute('data-selected') === 'true';
-  if (isSelected) {
-    // Handle the case when data-selected is true
-    handleChooseAns(e.target.id)
+    const isSelected = e.target.getAttribute('data-selected') === 'true';
+    if (isSelected) {
+      // Handle the case when data-selected is true
+      handleChooseAns(e.target.id)
 
-  } else {
-    // Handle the case when data-selected is false
-    // speak what the button is
-    speak(e.target.value)
+    } else {
+      // Handle the case when data-selected is false
+      // speak what the button is
+      speak(e.target.value)
 
-    // Reset all the data-selected in all buttons on the page
-    const allButtons = document.querySelectorAll('.gamepage-button');
-    allButtons.forEach(button => button.setAttribute('data-selected', 'false'));
+      // Reset all the data-selected in all buttons on the page
+      const allButtons = document.querySelectorAll('.gamepage-button');
+      allButtons.forEach(button => button.setAttribute('data-selected', 'false'));
 
-    // Set data-selected in e.target to true
-    e.target.setAttribute('data-selected', 'true');
-  }
+      // Set data-selected in e.target to true
+      e.target.setAttribute('data-selected', 'true');
+    }
   }
 
   // keep track of timeLeft
@@ -174,14 +175,9 @@ function GamePage() {
       speak("Time's Up!")
       setPopUpMessage("Time's Up!")
       // if time's up before you choose, your answer will be saved as empty string
-      if(questionData) {
+      if (questionData) {
         delayedCallback(() => checkAnswer(questionData, ""), 1500)
       }
-
-      // 6 sec to accomodate the TTS API call lag
-    } else if (timeLeft === 6) {
-      // TODO
-      speak("5 seconds left")
     }
   }, [timeLeft])
 
@@ -204,7 +200,7 @@ function GamePage() {
             <button
               id={choice}
               onClick={handleDoubleClick}
-              value = {`${answerGroup[index]}. ${choice}`}
+              value={`${answerGroup[index]}. ${choice}`}
               className={`gamepage-button gamepage-${answerGroup[index]}`}
             >
               {answerGroup[index]} {choice}
@@ -220,9 +216,11 @@ function GamePage() {
   }
 
   return (
-    <div className='gamepage'>
+    <>
+      <Header header='Game Page' />
+      <div className='gamepage'>
       {
-        !startGame && <div onClick={handleStartGame} className='gamepage-startgame'> 
+        !startGame && <div onClick={handleStartGame} className='gamepage-startgame'>
           <p className='gamepage-ready-text'>Click Anywhere on Screen</p>
         </div>
       }
@@ -234,6 +232,7 @@ function GamePage() {
       }
       {questionData && displayGameLayout(questionData)}
     </div>
+    </>
   )
 }
 

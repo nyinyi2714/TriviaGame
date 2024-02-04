@@ -9,7 +9,9 @@ function useTextToSpeech() {
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
 
+
   const speak = (word: String): Promise<void> => {
+
     return new Promise((resolve, reject) => {
       const textToSpeechEndpoint = import.meta.env.VITE_REACT_APP_TEXT_TO_SPEECH_ENDPOINT;
       const textToSpeechKey = import.meta.env.VITE_REACT_APP_TEXT_TO_SPEECH_KEY;

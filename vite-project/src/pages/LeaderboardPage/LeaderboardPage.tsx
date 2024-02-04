@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useFetchLeaderboard } from '../../hooks';
+import { Header } from '../../components';
 import './LeaderboardPage.css';
 
 type UserScore = {
@@ -25,25 +26,28 @@ function LeaderboardPage() {
   }, []);
 
   return (
-    <div className='leaderboard'>
-      <h1>Leaderboard</h1>
-      <table id="leaderboardTable">
-        <thead>
-          <tr>
-            <th>Username</th>
-            <th>Reached 1 Million</th>
-          </tr>
-        </thead>
-        <tbody>
-          {leaderboardData.map((data, index) => (
-            <tr key={index}>
-              <td>{data.username}</td>
-              <td>{data.score}</td>
+    <>
+      <Header header='Leaderboard' />
+      <div className='leaderboard'>
+        <h1>Leaderboard</h1>
+        <table id="leaderboardTable">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Reached 1 Million</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {leaderboardData.map((data, index) => (
+              <tr key={index}>
+                <td>{data.username}</td>
+                <td>{data.score}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
   );
 }
 

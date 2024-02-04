@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../hooks";
+import { Header } from "../../components";
 import "./LoginPage.css";
 
 const LoginPage = () => {
@@ -41,54 +42,57 @@ const LoginPage = () => {
   }, [confirmPassword]);
 
   return (
-    <div className="login">
-      <h2>{isLogin ? "Login" : "Register"}</h2>
-      <div className="login-input-group">
-        <label htmlFor="username">Username:</label>
-        <input
-          type="text"
-          id="username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="Username"
-        />
-      </div>
-      <div className="login-input-group">
-        <label htmlFor="password">Password:</label>
-        <input
-          type="password"
-          id="password"
-          value={password}
-          onChange={(e) => {
-            setPassword(e.target.value);
-          }}
-          placeholder="Password"
-        />
-      </div>
-      {!isLogin && (
+    <>
+    <Header header={isLogin ? "Login" : "Register"} />
+      <div className="login">
+        <h2>{isLogin ? "Login" : "Register"}</h2>
         <div className="login-input-group">
-          <label htmlFor="confirm-password">Confirm Password:</label>
+          <label htmlFor="username">Username:</label>
           <input
-            type="password"
-            id="confirm-password"
-            value={confirmPassword}
-            onChange={(e) => {
-              setConfirmPassword(e.target.value);
-            }}
-            placeholder="Confirm your password"
+            type="text"
+            id="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Username"
           />
         </div>
-      )}
-      {!passwordsMatch && (
-        <p style={{ color: "red" }}>Passwords do not match</p>
-      )}
-      <button onClick={isLogin ? handleLogin : handleRegistration}>
-        {isLogin ? "Login" : "Register"}
-      </button>
-      <button onClick={toggleLogin}>
-        {isLogin ? " Register Here" : "Already have an account? Login Here"}
-      </button>
-    </div>
+        <div className="login-input-group">
+          <label htmlFor="password">Password:</label>
+          <input
+            type="password"
+            id="password"
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+            }}
+            placeholder="Password"
+          />
+        </div>
+        {!isLogin && (
+          <div className="login-input-group">
+            <label htmlFor="confirm-password">Confirm Password:</label>
+            <input
+              type="password"
+              id="confirm-password"
+              value={confirmPassword}
+              onChange={(e) => {
+                setConfirmPassword(e.target.value);
+              }}
+              placeholder="Confirm your password"
+            />
+          </div>
+        )}
+        {!passwordsMatch && (
+          <p style={{ color: "red" }}>Passwords do not match</p>
+        )}
+        <button onClick={isLogin ? handleLogin : handleRegistration}>
+          {isLogin ? "Login" : "Register"}
+        </button>
+        <button onClick={toggleLogin}>
+          {isLogin ? " Register Here" : "Login Here"}
+        </button>
+      </div>
+    </>
   );
 };
 

@@ -9,7 +9,7 @@
     "opt1  opt2"
     "opt3  opt4";
   width: 100%;
-  min-height: 100vh;
+  min-height: 90vh;
 }
 
 .gamepage-score {
@@ -72,7 +72,7 @@
 }
 
 .gamepage-ready-text {
-  margin: 50% 1rem 0;
+  margin: 100% 1rem 0;
   text-align: center;
   font-size: 1.8rem;
   padding: 1rem;
