@@ -7,6 +7,7 @@
     "question question"
     "opt1  opt2"
     "opt3  opt4";
+  width: 100%;
   min-height: 100vh;
 }
 
@@ -17,13 +18,27 @@
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.3);  
+  display: grid;
+  place-content: center;
 }
 
 .gamepage-popup {
+  font-size: 1.6rem;
   padding: 2rem;
+  margin: 0 1rem;
   border: 1px solid;
   box-shadow: 2px 2px 4px;
   border-radius: 5px;
+  background-color: whitesmoke;
+}
+
+.gamepage-fullscreen-btn {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 .gamepage-button {

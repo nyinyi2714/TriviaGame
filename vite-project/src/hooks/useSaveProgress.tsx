@@ -11,6 +11,7 @@ const useSaveProgress = () => {
     try {
       const response = await fetch(`${BACKEND_API}/save`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },

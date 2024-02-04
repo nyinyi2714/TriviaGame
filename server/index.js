@@ -46,7 +46,7 @@ const authenticateJWT = (req, res, next) => {
   const accessToken = req.cookies.accessToken
 
   if (!accessToken) {
-    return res.status(401).json({ error: 'Unauthorized' })
+    return res.status(401).json({ error: 'no access token present' })
   }
 
   jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
@@ -59,11 +59,24 @@ const authenticateJWT = (req, res, next) => {
       }
     }
 
-    // Token verified successfully
-    // Attach the decoded user to the request for later use in routes
-    req.user = decoded
+    try {
+      // Fetch the user from the database using the userId from the decoded token
+      const user = await User.findById(decoded.userId);
 
-    next()
+      if (!user) {
+        return res.status(401).json({ error: 'User not found' });
+      }
+
+      // Attach the user object to the request for later use in routes
+      req.user = user;
+
+      // Continue with the next middleware
+
+      next()
+    } catch (error) {
+      console.error('Error fetching user:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
   })
 }
 
@@ -161,7 +174,7 @@ app.get('/leaderboard', async (req, res) => {
   }
 })
 
-// Return questions from Open Trivia Database API
+// Return questions from our own database
 app.post('/questions', authenticateJWT, async (req, res) => {
 
   // Check if there's a user in the request
@@ -181,12 +194,12 @@ app.post('/questions', authenticateJWT, async (req, res) => {
     } else {
       difficulty = 'hard';
     }
-    
     // Fetch a random question from the Question model for the selected difficulty
     const question = await Question.aggregate([
       { $match: { difficulty: difficulty } },
       { $sample: { size: 1 } },
     ]);
+
 
     // Check if there are questions
     if (!question || question.length === 0) {
@@ -210,7 +223,7 @@ app.post('/questions', authenticateJWT, async (req, res) => {
 // Endpoint for saving progress
 app.post('/save', authenticateJWT, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
     const { question_id, userChoice } = req.body;
 
     // Check if the user exists
@@ -228,31 +241,33 @@ app.post('/save', authenticateJWT, async (req, res) => {
     // Check if userChoice matches the correctAnswer
     const isUserCorrect = userChoice === question.correctAnswer;
 
-    if (!isUserCorrect) {
-      // If user is incorrect, send back the correct answer
-      res.status(200).json({ isUserCorrect: false, correctAnswer: question.correctAnswer });
-    } else {
-      // If correct, update user's money
-      let userReward;
+     
+      let moneyBet;
       switch (question.difficulty) {
         case 'easy':
-          userReward = 5000;
+          moneyBet = 5000;
           break;
         case 'medium':
-          userReward = 50000;
+          moneyBet = 50000;
           break;
         case 'hard':
-          userReward = 500000;
+          moneyBet = 500000;
           break;
         default:
-          userReward = 0;
+          moneyBet = 0;
       }
 
       let hasUserWon = null
-      user.money = user.money + userReward;
+
+      // If correct, update user's money
+      if(isUserCorrect) user.money = user.money + moneyBet;
+
+      // if incorrect, substract. Min is $0
+      else user.money = Math.max(user.money - moneyBet, 0);
+      
       // when user moneny hits 1 mil, they win. their progess reset. their score increase by 1
       if(user.money >= 1000000) {
-        user.money = 5000
+        user.money = 6000
         user.score = user.score + 1
         hasUserWon = true
       } else if(user.money <= 0) {
@@ -261,15 +276,14 @@ app.post('/save', authenticateJWT, async (req, res) => {
       await user.save();
 
       // Send back if the user is correct and the correct answer
-      // TODO: Test
-      res.status(200).json({ isUserCorrect: true, correctAnswer: question.correctAnswer, hasUserWon });
-    }
+      res.status(200).json({ isUserCorrect: isUserCorrect, correctAnswer: question.correctAnswer, hasUserWon });
+    
   } catch (error) {
     console.error('Error updating user money:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
 
-const rawData = [{}]
-
 app.listen(PORT)
+
+

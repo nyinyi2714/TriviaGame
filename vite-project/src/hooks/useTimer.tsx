@@ -1,30 +1,42 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 function useTimer() {
-  const [timeLeft, setTimeLeft] = useState(0);
-  let timerRef: NodeJS.Timeout | undefined;
+  const [timeLeft, setTimeLeft] = useState(1);
+  const timerRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
-  const timer = (sec: number): Promise<void> => {
-    return new Promise((resolve) => {
-      // decrease the timeLeft by 1 every sec
-      timerRef = setInterval(() => {
-        // Time is up
-        if (timeLeft - 1 <= 0) {
-          clearInterval(timerRef);
-          resolve();
-        }
-        setTimeLeft((prev) => prev - 1);
-      }, sec * 1000);
-    });
+  const startTimer = (sec: number): void => {
+    // Clear any existing interval
+    cancelTimer();
+
+    // Set the initial timeLeft
+    setTimeLeft(sec);
+
+    // Start the countdown
+    timerRef.current = setInterval(() => {
+      // Update timeLeft every second
+      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
   };
 
   const cancelTimer = () => {
-    clearInterval(timerRef);
+    // Clear the interval using the mutable timerRef
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = undefined;
+    }
   };
 
+  useEffect(() => {
+    // Cleanup function to clear the interval when component unmounts
+    return () => {
+      cancelTimer();
+    };
+  }, []);
+
   return {
-    timer,
+    startTimer,
     cancelTimer,
+    timeLeft,
   };
 }
 

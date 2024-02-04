@@ -3,6 +3,7 @@ import useAuth from "./useAuth"
 import useFetchQuestions from "./useFetchQuestion"
 import useSaveProgress from "./useSaveProgress"
 import useTimer from "./useTimer"
+import useDelayCallback from "./useDelayCallback"
 
 export {
   useTextToSpeech,
@@ -10,4 +11,5 @@ export {
   useFetchQuestions,
   useSaveProgress,
   useTimer,
+  useDelayCallback,
 }
