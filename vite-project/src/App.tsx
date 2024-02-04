@@ -20,7 +20,7 @@ function App() {
   return (
     <div className='app'>
       <Routes>
-        <Route path='/' element={isUserAuthenticated ? <HomePage /> : <Navigate to='/login' />} />
+        <Route path='/' element={isUserAuthenticated ? <HomePage /> : <LoginPage />} />
         <Route path='/login' element={<LoginPage />} />
         <Route path='/game' element={<GamePage />} />
         <Route path='/leaderboard' element={<LeaderboardPage />} />
