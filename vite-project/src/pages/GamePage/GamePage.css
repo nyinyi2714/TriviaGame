@@ -20,6 +20,7 @@
   background-color: rgba(0, 0, 0, 0.3);  
   display: grid;
   place-content: center;
+  z-index: 5;
 }
 
 .gamepage-popup {

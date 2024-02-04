@@ -13,7 +13,6 @@ try {
 
 // Import models from Database
 const User = require('./models/User')
-const Leaderboard = require('./models/Leaderboard')
 const Question = require('./models/Question')
 
 // JWT Token for Auth
@@ -101,7 +100,7 @@ app.post('/register', async (req, res) => {
     const user = new User({
       username: username,
       password: hashedPassword,
-      money: 0, // start the game with 0
+      money: 6000, // start the game with 0
       score: 0
     })
 
@@ -165,8 +164,7 @@ app.get('/checkAuth', authenticateJWT, async (req, res) => {
 app.get('/leaderboard', async (req, res) => {
   try {
     // Fetch leaderboard data from the database (top 10 players)
-    const leaderboardData = await Leaderboard.find().sort({ score: -1 }).limit(10)
-
+    const leaderboardData = await User.find().sort({ score: -1 }).limit(10);
     res.status(200).json(leaderboardData)
   } catch (error) {
     console.error('Error fetching leaderboard data:', error)

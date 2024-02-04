@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react'
+import { useAuth } from '../../hooks'
 import './HomePage.css'
 
 
 function HomePage() {
+
+  const { logout } = useAuth()
 
   return (
     <div className='homepage'>
@@ -14,7 +17,7 @@ function HomePage() {
         <button>RESUME</button>
         <button>LEADERBOARD</button>
         <button>SETTINGS</button>
-        <button>LOGOUT</button>
+        <button onClick={logout}>LOGOUT</button>
       </div>
     </div>
     

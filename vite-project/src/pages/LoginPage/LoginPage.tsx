@@ -1,30 +1,48 @@
-import { useState } from 'react'
-import { useAuth } from '../../hooks'
-import './LoginPage.css'
+import { useEffect, useState } from 'react';
+import { useAuth } from '../../hooks';
+import './LoginPage.css';
 
 const LoginPage = () => {
-  const { login, register } = useAuth()
+  const { login, register } = useAuth();
 
-  const [isLogin, setIsLogin] = useState(true)
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
+  const [isLogin, setIsLogin] = useState(true);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordsMatch, setPasswordsMatch] = useState(true);
 
   const handleLogin = () => {
-    login(username, password)
-  }
+    login(username, password);
+  };
 
   const handleRegistration = () => {
-    register(username, password)
-  }
+    if (passwordsMatch) {
+      register(username, password);
+    } else {
+      // Handle password mismatch error
+      console.error("Passwords do not match");
+    }
+  };
 
   const toggleLogin = () => {
-    setIsLogin(prev => !prev)
-  }
+    setIsLogin((prev) => !prev);
+  };
+
+  const checkPasswordMatch = () => {
+    console.log({password, confirmPassword})
+    setPasswordsMatch(password === confirmPassword);
+  };
+
+  useEffect(() => {
+    if(password.length <= 0) return
+
+    // if password field is entered
+    checkPasswordMatch()
+  }, [confirmPassword])
 
   return (
     <div className="login">
-      <h2>Login</h2>
+      <h2>{isLogin ? 'Login' : 'Register'}</h2>
       <div className="login-input-group">
         <label htmlFor="username">Username:</label>
         <input
@@ -32,7 +50,7 @@ const LoginPage = () => {
           id="username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          placeholder='username'
+          placeholder="Enter your username"
         />
       </div>
       <div className="login-input-group">
@@ -41,32 +59,35 @@ const LoginPage = () => {
           type="password"
           id="password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder='password'
+          onChange={(e) => {setPassword(e.target.value);}}
+          placeholder="Enter your password"
         />
       </div>
-      {
-        !isLogin &&
+      {!isLogin && (
         <div className="login-input-group">
           <label htmlFor="confirm-password">Confirm Password:</label>
           <input
             type="password"
             id="confirm-password"
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder='confirm password'
+            onChange={(e) => {setConfirmPassword(e.target.value);}}
+            placeholder="Confirm your password"
           />
         </div>
-      }
-      <button onClick={isLogin? handleLogin : handleRegistration}>{isLogin ? "Login" : "Register"}</button>
+      )}
+      {!passwordsMatch && (
+        <p style={{ color: 'red' }}>Passwords do not match</p>
+      )}
+      <button onClick={isLogin ? handleLogin : handleRegistration}>
+        {isLogin ? 'Login' : 'Register'}
+      </button>
       <button onClick={toggleLogin}>
-        {isLogin ?
-          "Don't have an account? Click Here to Register" :
-          "Already have an account? Login Here"
-        }
+        {isLogin
+          ? 'Need an account? Register Here'
+          : 'Already have an account? Login Here'}
       </button>
     </div>
-  )
-}
+  );
+};
 
-export default LoginPage
+export default LoginPage;

@@ -21,7 +21,6 @@ function useAuth() {
 
       if (response.ok) {
         // Login Successful, redirect to homepage
-        // TODO: test
         navigate('/')
         return true
       } else {
@@ -50,7 +49,6 @@ function useAuth() {
 
       if (response.ok) {
         // Registration successful
-        // Todo: Test
         navigate('/')
 
         return true
@@ -92,7 +90,7 @@ function useAuth() {
   const logout = async (): Promise<boolean> => {
     // Delete the token cookie and data on the client-side
     document.cookie = 'token= expires=Thu, 01 Jan 1970 00:00:00 UTC path=/'
-    navigate('/')
+    navigate('/login')
 
     // Send logout request to the backend
     try {
