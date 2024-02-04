@@ -1,5 +1,24 @@
 .app {
-  display: grid;
-  place-items: center;
+  /* display: grid;
+  place-items: center; */
   min-height: 100vh;
+}
+
+.container-app {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 2fr 8fr;
+  gap: 0px 0px;
+  grid-auto-flow: row;
+  grid-template-areas:
+    "game-head"
+    "game-shell";
+}
+
+.game-shell {
+  grid-area: game-shell;
+}
+
+.game-head {
+  grid-area: game-head;
 }
