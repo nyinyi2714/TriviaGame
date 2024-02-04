@@ -1,14 +1,31 @@
 .gamepage {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: 2fr 1fr 1fr;
+  grid-template-rows: .3fr 2fr 1fr 1fr;
   gap: 1.5px 1.5px;
   grid-template-areas:
+    "gamepage-score gamepage-score"
     "question question"
     "opt1  opt2"
     "opt3  opt4";
   width: 100%;
   min-height: 100vh;
+}
+
+.gamepage-score {
+  display: flex;
+  justify-content: space-between;
+  grid-area: gamepage-score;
+  padding: 1rem;
+} 
+
+.gamepage-startgame {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
 }
 
 .gamepage-popup-wrapper {
@@ -54,6 +71,15 @@
   cursor: pointer;
 }
 
+.gamepage-ready-text {
+  margin: 50% 1rem 0;
+  text-align: center;
+  font-size: 1.8rem;
+  padding: 1rem;
+  background-color: white;
+  border-radius: 5px;
+}
+
 .opt1 {
   grid-area: opt1;
 }
@@ -68,6 +94,14 @@
 
 .opt4 {
   grid-area: opt4;
+}
+
+.opt5 {
+  grid-area: opt5;
+}
+
+.opt6 {
+  grid-area: opt6;
 }
 
 .question {

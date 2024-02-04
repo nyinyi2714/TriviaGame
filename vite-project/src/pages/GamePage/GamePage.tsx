@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useDelayCallback, useFetchQuestions, useSaveProgress, useTextToSpeech, useTimer } from '../../hooks'
 import './GamePage.css'
 import { useNavigate } from 'react-router-dom';
@@ -16,13 +16,26 @@ function GamePage() {
   const { startTimer, cancelTimer, timeLeft } = useTimer()
   const { delayedCallback } = useDelayCallback()
   const navigate = useNavigate()
+  
 
   const { fetchQuestions } = useFetchQuestions()
-  const [questionData, setQuestionData] = useState<Question | null>(null)
+  const sampleQuestion = {
+    question: 'Welcome!',
+    choices: ['A', 'B', 'C', 'D'],
+    userMoney: 6000,
+    question_id: "",
+  }
+  const [questionData, setQuestionData] = useState<Question>(sampleQuestion)
   const [popUpMessage, setPopUpMessage] = useState("")
   const [isGameOver, setIsGameOver] = useState(false)
+  const [startGame, setStartGame] = useState(false)
+
+  const answerGroup = ['A', 'B', 'C', 'D']
 
   const fetchAndSaveQuestionData = async () => {
+    // if game is not started, return
+    if(!startGame) return
+
     // reset game parameters
     setPopUpMessage('')
     cancelTimer()
@@ -32,9 +45,9 @@ function GamePage() {
 
       if (responseData) {
         setQuestionData(responseData)
-
-        // 15 sec to answer the question
-        startTimer(15)
+        speakQuestionsAndChoice(responseData)
+        // 30 sec to answer the question
+        startTimer(30)
 
       } else {
         console.error("fetched question data is empty")
@@ -53,7 +66,7 @@ function GamePage() {
       cancelTimer()
       stop() // stop the TTS from playing the audio
     }
-  }, [])
+  }, [startGame])
 
   // go to homepage or next question based on game status 
   const handleNextStep = (e: any) => {
@@ -69,30 +82,6 @@ function GamePage() {
     else fetchAndSaveQuestionData()
   }
 
-  // contain scripts for Text-To-Speech Hook
-  const askUserNextStep = (hasUserWon: null | boolean) => {
-    // if game is not over
-    if (hasUserWon === null) {
-      // ask user to go to next question after the first TTS is done running
-      delayedCallback(() => speak("click anywhere on the phone's screen to go to the next question"))
-      return
-
-      // User wins the game
-    } else if (hasUserWon) {
-      setPopUpMessage('Congratulation!')
-      speak('Congratulation! You have reached one milion dollar')
-      // ask user to go to homepage after the first TTS is done running
-
-    } else {
-      // User lost the game when money reaches 0
-      setPopUpMessage('Game Over')
-      speak('Game Over. You have lost all your money.')
-    }
-
-    // ask user to go to homepage after the first TTS is done running
-    delayedCallback(() => speak("click anywhere on the phone's screen to go to the homepage"), 3000)
-  }
-
   // check user's answer if it's correct by sending to backend
   const checkAnswer = async (questionData: Question, userChoice: string) => {
     const response = await saveProgress(questionData.question_id, userChoice);
@@ -101,32 +90,83 @@ function GamePage() {
     // hasUserWon === null means game is not over yet
     setIsGameOver(hasUserWon === null ? false : true)
 
+    let textToSpeech = '';
+
     // if user is correct
     if (isUserCorrect) {
       setPopUpMessage('Correct!')
-      speak("you are correct!")
-      delayedCallback(() => askUserNextStep(hasUserWon), 1500)
+      textToSpeech += 'correct!'
 
     } else {
       // if user is incorrect
       setPopUpMessage(`The correct answer is ${correctAnswer}`)
-      speak(`Incorrect! The correct answer is ${correctAnswer}.`)
-      delayedCallback(() => askUserNextStep(hasUserWon), 3000)
+      textToSpeech += `Incorrect! The correct answer is ${correctAnswer}.`
     }
 
+    // if game is not over
+    if (hasUserWon === null) {
+      // ask user to go to next question after the first TTS is done running
+      textToSpeech += "click anywhere on the phone's screen to go to the next question"
+      speak(textToSpeech)
+      return
+
+      // User wins the game
+    } else if (hasUserWon) {
+      textToSpeech += 'Congratulation! You have reached one milion dollar'
+
+    } else {
+      // User lost the game when money reaches 0
+      textToSpeech += 'Game Over. You have lost all your money.'
+    }
+
+    textToSpeech += "click anywhere on the phone's screen to go to the homepage"
+    speak(textToSpeech)
   }
 
   // when user choose an answer
-  const handleChooseAns = async (e: any) => {
+  const handleChooseAns = async (buttonId: string) => {
      // stop the timer
      cancelTimer()
 
     if (questionData) {
-      checkAnswer(questionData, e.currentTarget.id)
+      checkAnswer(questionData, buttonId)
     }
   };
 
   const speakQuestion = () => questionData && speak(questionData.question)
+
+  const speakQuestionsAndChoice = (questionData: Question) => {
+    let textToSpeech = questionData.question
+    questionData.choices.forEach((choice, index) => {
+      textToSpeech += answerGroup[index] + choice + ". "
+    });
+    textToSpeech += 'you have ' + questionData.userMoney + 'dollar'
+    speak(textToSpeech)
+  }
+
+  const handleDoubleClick = (e: any) => {
+    // if TTS is running, return
+    if(isSpeaking) return
+
+    // Check if the element has the attribute data-selected set to true
+  const isSelected = e.target.getAttribute('data-selected') === 'true';
+  if (isSelected) {
+    // Handle the case when data-selected is true
+    handleChooseAns(e.target.id)
+
+  } else {
+    // Handle the case when data-selected is false
+    // speak what the button is
+    speak(e.target.value)
+
+    // Reset all the data-selected in all buttons on the page
+    const allButtons = document.querySelectorAll('.gamepage-button');
+    allButtons.forEach(button => button.setAttribute('data-selected', 'false'));
+
+    // Set data-selected in e.target to true
+    e.target.setAttribute('data-selected', 'true');
+  }
+  }
 
   // keep track of timeLeft
   useEffect(() => {
@@ -147,11 +187,12 @@ function GamePage() {
 
   // generate jsx to display the question and 4 answers
   const displayGameLayout = (questionData: Question) => {
-    const answerGroup = ['A', 'B', 'C', 'D']
     return (
       <>
-        <p>Timer : {timeLeft}</p>
-        <p>Your Current Money: {questionData.userMoney}</p>
+        <div className="gamepage-score">
+          <p>Timer : {timeLeft}</p>
+          <p>Your Current Money: {questionData.userMoney}</p>
+        </div>
         <div className="question">
           <button className='gamepage-button'>
             <h2 onClick={speakQuestion}>{questionData.question}</h2>
@@ -162,8 +203,8 @@ function GamePage() {
           <div key={index} className={`opt${index + 1}`}>
             <button
               id={choice}
-              onClick={handleChooseAns}
-              // onClick={() => speak(`${answerGroup[index]}. ${choice}`)}
+              onClick={handleDoubleClick}
+              value = {`${answerGroup[index]}. ${choice}`}
               className={`gamepage-button gamepage-${answerGroup[index]}`}
             >
               {answerGroup[index]} {choice}
@@ -174,15 +215,24 @@ function GamePage() {
     )
   }
 
+  const handleStartGame = () => {
+    setStartGame(true)
+  }
+
   return (
     <div className='gamepage'>
+      {
+        !startGame && <div onClick={handleStartGame} className='gamepage-startgame'> 
+          <p className='gamepage-ready-text'>Click Anywhere on Screen</p>
+        </div>
+      }
       {
         popUpMessage.length > 0 &&
         <div onClick={handleNextStep} className='gamepage-popup-wrapper fullscreen'>
           <div className='gamepage-popup'>{popUpMessage}</div>
         </div>
       }
-      {questionData ? displayGameLayout(questionData) : <p>Error getting a question</p>}
+      {questionData && displayGameLayout(questionData)}
     </div>
   )
 }
