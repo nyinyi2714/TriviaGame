@@ -1,0 +1,42 @@
+.homepage-button {
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
+  gap: 0px 0px;
+  grid-auto-flow: row;
+  grid-template-areas:
+    "new-box"
+    "resume-box"
+    "leader-box"
+    "settings-box"
+    "logout-box";
+}
+
+.homeBtn {
+  background-color: #e6e6fa;
+  font-size: 35px;
+  font-style: bold;
+  min-height: 100%;
+  min-width: 100%;
+}
+
+.new-box {
+  grid-area: new-box;
+}
+
+.resume-box {
+  grid-area: resume-box;
+}
+
+.leader-box {
+  grid-area: leader-box;
+}
+
+.settings-box {
+  grid-area: settings-box;
+}
+
+.logout-box {
+  grid-area: logout-box;
+}
