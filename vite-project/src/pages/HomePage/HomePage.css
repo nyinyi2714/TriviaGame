@@ -1,0 +1,18 @@
+.homepage{
+    background-color: lavender;
+    font-size: larger;
+    font-weight: 500;
+    font-family: 'Times New Roman', Times, serif;
+    text-align: center;
+    padding: 20px;
+    color: black;
+}
+.homepage-button button{
+    background-color: grey;
+    display: block;
+    width: 100%;
+    margin: .5rem 0;
+    box-shadow: 4x 4x 0 black;
+    padding: 20px 40px;
+    font-size: 1.5rem;
+}
