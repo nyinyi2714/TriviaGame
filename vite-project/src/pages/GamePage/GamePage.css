@@ -10,6 +10,22 @@
   min-height: 100vh;
 }
 
+.gamepage-popup-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);  
+}
+
+.gamepage-popup {
+  padding: 2rem;
+  border: 1px solid;
+  box-shadow: 2px 2px 4px;
+  border-radius: 5px;
+}
+
 .gamepage-button {
   text-align: center;
   background-color: lightpink;
@@ -19,6 +35,7 @@
   width: 100%;
   height: 100%;
   font-style: oblique;
+  cursor: pointer;
 }
 
 .opt1 {

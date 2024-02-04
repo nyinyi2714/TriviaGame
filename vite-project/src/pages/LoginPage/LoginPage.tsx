@@ -1,25 +1,25 @@
-import { useState } from 'react';
+import { useState } from 'react'
 import { useAuth } from '../../hooks'
-import './LoginPage.css';
+import './LoginPage.css'
 
 const LoginPage = () => {
   const { login, register } = useAuth()
 
   const [isLogin, setIsLogin] = useState(true)
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
 
   const handleLogin = () => {
     login(username, password)
-  };
+  }
 
   const handleRegistration = () => {
     register(username, password)
   }
 
   const toggleLogin = () => {
-    setIsLogin(prev => !prev);
+    setIsLogin(prev => !prev)
   }
 
   return (
@@ -66,7 +66,7 @@ const LoginPage = () => {
         }
       </button>
     </div>
-  );
-};
+  )
+}
 
-export default LoginPage;
+export default LoginPage

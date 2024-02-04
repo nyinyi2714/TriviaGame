@@ -1,12 +1,12 @@
-import { BACKEND_API } from '../config';
-import { useNavigate } from 'react-router-dom';
+import { BACKEND_API } from '../config'
+import { useNavigate } from 'react-router-dom'
 
 interface AuthResponse {
-  message: string;
+  message: string
 }
 
 function useAuth() {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
@@ -17,24 +17,25 @@ function useAuth() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ username, password }),
-      });
+      })
 
       if (response.ok) {
-        // Login Successful
-        // TODO
-        return true;
+        // Login Successful, redirect to homepage
+        // TODO: test
+        navigate('/')
+        return true
       } else {
         // Handle login failure
-        console.error('Login failed');
-        const loginData: AuthResponse = await response.json();
-        alert(loginData.message);
-        return false;
+        console.error('Login failed')
+        const loginData: AuthResponse = await response.json()
+        alert(loginData.message)
+        return false
       }
     } catch (error) {
-      console.error('Error during login:', error);
-      return false;
+      console.error('Error during login:', error)
+      return false
     }
-  };
+  }
 
   const register = async (username: string, password: string): Promise<boolean> => {
     try {
@@ -45,23 +46,25 @@ function useAuth() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ username, password }),
-      });
+      })
 
       if (response.ok) {
         // Registration successful
-        // TODO
-        return true;
+        // Todo: Test
+        navigate('/')
+
+        return true
       } else {
         // Handle registration failure
-        const registerData: AuthResponse = await response.json();
-        alert(registerData.message);
-        return false;
+        const registerData: AuthResponse = await response.json()
+        alert(registerData.message)
+        return false
       }
     } catch (error) {
-      console.error('Error during registration:', error);
-      return false;
+      console.error('Error during registration:', error)
+      return false
     }
-  };
+  }
 
   const getUser = async (): Promise<boolean> => {
     try {
@@ -71,25 +74,25 @@ function useAuth() {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-      });
+      })
 
       if (response.ok) {
-        // TODO
+        // return true if user is authenticated
         return true
       } else {
-        console.error('Retrieval of current user failed');
-        return false;
+        console.error('Retrieval of current user failed')
+        return false
       }
     } catch (error) {
-      console.error('Error during Retrieval of current user:', error);
-      return false;
+      console.error('Error during Retrieval of current user:', error)
+      return false
     }
-  };
+  }
 
   const logout = async (): Promise<boolean> => {
     // Delete the token cookie and data on the client-side
-    document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    navigate('/');
+    document.cookie = 'token= expires=Thu, 01 Jan 1970 00:00:00 UTC path=/'
+    navigate('/')
 
     // Send logout request to the backend
     try {
@@ -99,22 +102,22 @@ function useAuth() {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-      });
+      })
 
-      if (response.ok) console.error('Logout successful');
+      if (response.ok) console.error('Logout successful')
       return true
     } catch (error) {
-      console.error('Error during logout:', error);
+      console.error('Error during logout:', error)
       return false
     }
-  };
+  }
 
   return {
     login,
     register,
     getUser,
     logout,
-  };
+  }
 }
 
 export default useAuth

@@ -14,16 +14,14 @@ try {
 // Import models from Database
 const User = require('./models/User')
 const Leaderboard = require('./models/Leaderboard')
+const Question = require('./models/Question')
 
 // JWT Token for Auth
 const jwt = require('jsonwebtoken')
 
-// axios to make http requests
-const axios = require('axios')
-
 // Cors
 const cors = require('cors')
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:5173']
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:5173', 'https://main.dr0zerqotak90.amplifyapp.com']
 app.use(cors({ origin: allowedOrigins, credentials: true }))
 
 // BodyParser
@@ -37,9 +35,7 @@ const bcrypt = require('bcrypt')
 const cookieParser = require('cookie-parser')
 app.use(cookieParser())
 
-const accessCookieLifeSpan = 60 * 60 * 1000 // 1h
-
-const answers = []
+const accessCookieLifeSpan = 5 * 60 * 60 * 1000 // 5h
 
 // Testing Connection
 app.get('/', (req, res) => {
@@ -47,33 +43,33 @@ app.get('/', (req, res) => {
 })
 
 const authenticateJWT = (req, res, next) => {
-  const accessToken = req.cookies.accessToken;
+  const accessToken = req.cookies.accessToken
 
   if (!accessToken) {
-    return res.status(401).json({ error: 'Unauthorized' });
+    return res.status(401).json({ error: 'Unauthorized' })
   }
 
   jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
     if (err) {
       // Token verification failed
       if (err.name === 'TokenExpiredError') {
-        return res.status(401).json({ error: 'Token expired' });
+        return res.status(401).json({ error: 'Token expired' })
       } else {
-        return res.status(401).json({ error: 'Unauthorized' });
+        return res.status(401).json({ error: 'Unauthorized' })
       }
     }
 
     // Token verified successfully
     // Attach the decoded user to the request for later use in routes
-    req.user = decoded;
+    req.user = decoded
 
-    next();
-  });
-};
+    next()
+  })
+}
 
 // Function to generate access token
 const generateAccessToken = (userId) => {
-  return jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+  return jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '5h' })
 }
 
 // User Registration endpoint
@@ -146,8 +142,7 @@ app.get('/logout', (req, res) => {
 // Check if the user is logged in
 app.get('/checkAuth', authenticateJWT, async (req, res) => {
   if (req.user) {
-    // TODO: remove user info
-    res.json({ authenticated: true, user: req.user })
+    res.json({ authenticated: true })
   } else {
     res.json({ authenticated: false })
   }
@@ -167,94 +162,56 @@ app.get('/leaderboard', async (req, res) => {
 })
 
 // Return questions from Open Trivia Database API
-app.post('/questions', async (req, res) => {
+app.post('/questions', authenticateJWT, async (req, res) => {
 
   // Check if there's a user in the request
-  const user = req.user;
+  const user = req.user
 
   if (!user) {
-    return res.status(401).json({ message: 'Unauthorized - User not found' });
+    return res.status(401).json({ message: 'Unauthorized - User not found' })
   }
 
   try {
     // Choose difficulty based on user's money amount
-    let difficulty
-    switch (user.money) {
-      case user.money <= 10000:
-        difficulty = 'easy'
-        break
-      case user.money <= 100000:
-        difficulty = 'medium'
-        break
-      case user.money > 100000:
-        difficulty = 'hard'
-        break
-      default:
-        difficulty = 'easy'
+    let difficulty;
+    if (user.money <= 10000) {
+      difficulty = 'easy';
+    } else if (user.money <= 100000) {
+      difficulty = 'medium';
+    } else {
+      difficulty = 'hard';
+    }
+    
+    // Fetch a random question from the Question model for the selected difficulty
+    const question = await Question.aggregate([
+      { $match: { difficulty: difficulty } },
+      { $sample: { size: 1 } },
+    ]);
+
+    // Check if there are questions
+    if (!question || question.length === 0) {
+      return res.status(404).json({ message: 'No questions found for the selected difficulty.' });
     }
 
-    // category will be implemented if have time. Catagory will be randomized by default
-    // const category = req.body.category
+    // Check if 'choices' array is present in the fetched question
+    const { _id, question: fetchedQuestion, choices } = question[0];
+    if (!choices || !Array.isArray(choices) || choices.length < 4) {
+      return res.status(500).json({ message: 'Invalid question format.' });
+    }
 
-    // Check if amount and difficulty parameters are present
-    // if (!category) {
-    //   return res.status(400).json({ message: 'Amount, difficulty and category are required parameters.' })
-    // }
-
-    // Make a request to the Open Trivia Database API
-    const apiUrl = `https://opentdb.com/api.php?amount=1&difficulty=${difficulty}`
-    const response = await axios.get(apiUrl)
-
-    // Extract and send the questions as the response
-    const questions = response.data.results
-    const extractQuestions = extractQuestionAndChoices(questions)
-
-    res.status(200).json({ extractQuestions })
+    // Send the question and choices
+    res.status(200).json({ userMoney: user.money, question_id: _id, question: fetchedQuestion, choices: choices });
   } catch (error) {
     console.error('Error fetching trivia questions:', error)
     res.status(500).json({ message: 'Internal server error' })
   }
 })
 
-// Extract questions and answer choices from the external API
-function extractQuestionAndChoices(questionData) {
-  const { question, difficulty, correct_answer, incorrect_answers } = questionData;
-
-  // Combine correct and incorrect answers into choices array
-  const choices = [...incorrect_answers, correct_answer];
-
-  // Function to shuffle an array (Fisher-Yates algorithm)
-  function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-  }
-
-  // Shuffle the choices to randomize the order
-  const shuffledChoices = shuffleArray(choices);
-
-  // Save correct answer in the answers global variable
-  answers.push({ question: question, difficulty, correct_answer })
-
-  return {
-    question,
-    choices: shuffledChoices,
-    correctAnswer: correct_answer,
-  };
-}
-
-// Remove the question from the answers global variable after user answered the question
-const delAnswer = (answers, questionRef) => {
-  return answers.filter(answer => answer.question !== questionRef)
-}
-
 // Endpoint for saving progress
-app.post('/save', async (req, res) => {
+app.post('/save', authenticateJWT, async (req, res) => {
   try {
     const userId = req.user.id;
-    const { question, userChoice } = req.body;
+    const { question_id, userChoice } = req.body;
 
     // Check if the user exists
     const user = await User.findById(userId);
@@ -262,45 +219,57 @@ app.post('/save', async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Check if answers varible is not empty
-    if (answers.length <= 0) return res.status(500).json({ message: 'No saved correct answers' })
-
-    // Check if the question and userChoice sent from the client matches the correct answer
-    // store inside the answers global variable
-    if (userChoice.toLowerCase() !== answers[question].answer.toLowerCase()) {
-      res.status(200).json({ isUserCorrect: false, correctAnswer: answers[question].answer })
-    } else {
-      // if correct, update user's money
-      let userReward;
-      switch (answers[question].difficulty) {
-        case "easy":
-          userReward = 5000
-          break
-        case "medium":
-          userReward = 50000
-          break
-        case "hard":
-          userReward = 500000
-          break
-        default:
-          userReward = 0
-      }
-
-      user.money = user.money + userReward;
-      await user.save();
-
-      // delete the question and answer object from the answers global variable
-      answers = delAnswer(answers, question)
-
-      // Send back if the user is correct or not
-      // Send back correct answer
-      res.status(200).json({ isUserCorrect: true, correctAnswer: answers[question].answer })
+    // Fetch the question from the database based on question_id
+    const question = await Question.findById(question_id);
+    if (!question) {
+      return res.status(404).json({ message: 'Question not found' });
     }
 
+    // Check if userChoice matches the correctAnswer
+    const isUserCorrect = userChoice === question.correctAnswer;
+
+    if (!isUserCorrect) {
+      // If user is incorrect, send back the correct answer
+      res.status(200).json({ isUserCorrect: false, correctAnswer: question.correctAnswer });
+    } else {
+      // If correct, update user's money
+      let userReward;
+      switch (question.difficulty) {
+        case 'easy':
+          userReward = 5000;
+          break;
+        case 'medium':
+          userReward = 50000;
+          break;
+        case 'hard':
+          userReward = 500000;
+          break;
+        default:
+          userReward = 0;
+      }
+
+      let hasUserWon = null
+      user.money = user.money + userReward;
+      // when user moneny hits 1 mil, they win. their progess reset. their score increase by 1
+      if(user.money >= 1000000) {
+        user.money = 5000
+        user.score = user.score + 1
+        hasUserWon = true
+      } else if(user.money <= 0) {
+        hasUserWon = false
+      }
+      await user.save();
+
+      // Send back if the user is correct and the correct answer
+      // TODO: Test
+      res.status(200).json({ isUserCorrect: true, correctAnswer: question.correctAnswer, hasUserWon });
+    }
   } catch (error) {
     console.error('Error updating user money:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
+const rawData = [{}]
 
 app.listen(PORT)

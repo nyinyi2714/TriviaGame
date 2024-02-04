@@ -11,7 +11,7 @@ const leaderboardSchema = new Schema({
     type: Number,
     required: true,
   },
-});
+})
 
 module.exports = model('Leaderboard', leaderboardSchema)
 
