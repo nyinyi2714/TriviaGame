@@ -19,6 +19,41 @@ const dummyData = [
         score: 80,
         numofquestionsanswered: 8,
     },
+    {
+        username: "user4",
+        score: 70,
+        numofquestionsanswered: 7,
+    },
+    {
+        username: "user5",
+        score: 60,
+        numofquestionsanswered: 6,
+    },
+    {
+        username: "user6",
+        score: 50,
+        numofquestionsanswered: 5,
+    },
+    {
+        username: "user7",
+        score: 40,
+        numofquestionsanswered: 4,
+    },
+    {
+        username: "user8",
+        score: 30,
+        numofquestionsanswered: 3,
+    },
+    {
+        username: "user9",
+        score: 20,
+        numofquestionsanswered: 2,
+    },
+    {
+        username: "user10",
+        score: 10,
+        numofquestionsanswered: 1,
+    },
 ];
 
 
