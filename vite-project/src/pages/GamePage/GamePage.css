@@ -1,39 +1,58 @@
-.gamepage{
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 2fr 1fr 1fr;
-    gap: 1.5px 1.5px;
-    grid-template-areas: 
+.gamepage {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 2fr 1fr 1fr;
+  gap: 1.5px 1.5px;
+  grid-template-areas:
     "question question"
     "opt1  opt2"
     "opt3  opt4";
-    min-height: 100vh;
+  min-height: 100vh;
 }
-.gamepage-button{
-    text-align: center;
-    background-color:lightpink;
-    font-size:medium;
-    font-weight: bold;
-    font-family: 'Times New Roman', Times, serif;
-    width: 100%;
-    height: 100%;
-    font-style: oblique;
-}
-.opt1{grid-area: opt1;}
-.opt2{grid-area: opt2;}
-.opt3{grid-area: opt3;}
-.opt4{grid-area: opt4;}
-.question{grid-area: question;}
 
-.gamepage-A{
-background-color: aquamarine;
+.gamepage-button {
+  text-align: center;
+  background-color: lightpink;
+  font-size: medium;
+  font-weight: bold;
+  font-family: 'Times New Roman', Times, serif;
+  width: 100%;
+  height: 100%;
+  font-style: oblique;
 }
-.gamepage-B{
-    background-color: beige;
+
+.opt1 {
+  grid-area: opt1;
 }
-.gamepage-C{
-    background-color: floralwhite;
+
+.opt2 {
+  grid-area: opt2;
 }
-.gamepage-D{
-    background-color: honeydew;
+
+.opt3 {
+  grid-area: opt3;
+}
+
+.opt4 {
+  grid-area: opt4;
+}
+
+.question {
+  grid-area: question;
+}
+
+.gamepage-A {
+  background-color: aquamarine;
+}
+
+.gamepage-B {
+  background-color: beige;
+}
+
+.gamepage-C {
+  background-color: floralwhite;
+}
+
+.gamepage-D {
+  background-color: honeydew;
 }
